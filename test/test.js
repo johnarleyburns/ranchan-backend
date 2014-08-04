@@ -7,15 +7,30 @@ var throwError = function(err) {
     throw err;
 };
 
-var ipAddress = '127.0.0.9';
-var ipAddress2 = '127.0.0.10';
-var bannedIpAddress = '127.0.0.11';
-var bannedIpAddress2 = '127.0.0.12';
-var modIpAddress = '127.0.0.13';
+function randOctet() {
+    return Math.round(Math.random()*255);
+}
+function randIp () {
+    return randOctet()
+   + '.' + randOctet()
+   + '.' + randOctet()
+   + '.' + randOctet();
+} 
+var ipAddress = randIp();
+var ipAddress2 = randIp();
+var ipAddress3 = randIp();
+var ipAddress4 = randIp();
+var bannedIpAddress = randIp();
+var bannedIpAddress2 = randIp();
+var modIpAddress = randIp();
+var modIpAddress2 = randIp();
 
 var modId1 = 'johnarleyburns@gmail.com';
 
 var auth1;
+var auth2;
+var auth3;
+var auth4;
 var modAuth1;
 var bannedAuth1;
 var bannedAuth2;
@@ -24,13 +39,17 @@ mocha.describe('ranchan', function(){
     mocha.describe('newAuth', function() {
         mocha.it('should generate new auth objects', function() {
             auth1 = ranchan.newAuth(ipAddress, null);
-            modAuth1 = ranchan.newAuth(ipAddress2, modId1);
+            auth2 = ranchan.newAuth(ipAddress2, null);
+            auth3 = ranchan.newAuth(ipAddress3, null);
+            auth4 = ranchan.newAuth(ipAddress4, null);
+            modAuth1 = ranchan.newAuth(modIpAddress2, modId1);
             bannedAuth1 = ranchan.newAuth(bannedIpAddress, null);
             bannedAuth2 = ranchan.newAuth(bannedIpAddress2, null);
             bannedModAuth1 = ranchan.newAuth(modIpAddress, modId1);
             assert.equal(ipAddress, auth1.ipAddress);
             assert(!auth1.moderatorId);
-            assert.equal(ipAddress2, modAuth1.ipAddress);
+            assert.equal(ipAddress2, auth2.ipAddress);
+            assert.equal(modIpAddress2, modAuth1.ipAddress);
             assert.equal(modId1, modAuth1.moderatorId);
             assert.equal(bannedIpAddress, bannedAuth1.ipAddress);
             assert.equal(bannedIpAddress2, bannedAuth2.ipAddress);
@@ -50,6 +69,8 @@ var thread7;
 var thread8;
 var thread9;
 var thread10;
+var thread11;
+var thread12;
 var threadId1;
 var threadId2;
 var threadId3;
@@ -60,6 +81,8 @@ var threadId7;
 var threadId8;
 var threadId9;
 var threadId10;
+var threadId11;
+var threadId12;
 
 mocha.describe('ranchan', function(){
     mocha.describe('newThreadId', function() {
@@ -79,6 +102,8 @@ mocha.describe('ranchan', function(){
             threadId8 = ranchan.newThreadId();
             threadId9 = ranchan.newThreadId();
             threadId10 = ranchan.newThreadId();
+            threadId11 = ranchan.newThreadId();
+            threadId12 = ranchan.newThreadId();
             
             var first = new Date();
             var second = new Date();
@@ -90,6 +115,8 @@ mocha.describe('ranchan', function(){
             var eighth = new Date();
             var nineth = new Date();
             var tenth = new Date();
+            var eleventh = new Date();
+            var twelvth = new Date();
             first.setMinutes(first.getMinutes() - 256);
             second.setMinutes(second.getMinutes() - 128);
             third.setMinutes(third.getMinutes() - 64);
@@ -97,12 +124,15 @@ mocha.describe('ranchan', function(){
             fifth.setMinutes(fifth.getMinutes() - 16);
             sixth.setMinutes(sixth.getMinutes() - 8);
             seventh.setMinutes(seventh.getMinutes() - 4);
-            eighth.setMinutes(eighth.getMinutes() - 2);
-            nineth.setMinutes(eighth.getMinutes() - 1);
+            eighth.setMinutes(eighth.getMinutes() - 3);
+            nineth.setMinutes(eighth.getMinutes() - 2);
+            tenth.setMinutes(eighth.getMinutes() - 1);
+            twelvth.setMinutes(third.getMinutes() - 64);
+            twelvth.setSeconds(third.getSeconds() + 30);
             thread1 = ranchan.newThread({
                 threadId: threadId1,
                 parentId: 0,
-                content: 'ITT: testing on node.js',
+                content: 'ITT: testing on node.js top-level thread',
                 nickname: 'bob the builder',
                 date: first,
                 imageBytes: 0,
@@ -115,7 +145,7 @@ mocha.describe('ranchan', function(){
             thread2 = ranchan.newThread({
                 threadId: threadId2,
                 parentId: threadId1,
-                content: 'testing ftw',
+                content: 'test reply thread',
                 nickname: '',
                 date: second,
                 imageBytes: 0,
@@ -156,7 +186,7 @@ mocha.describe('ranchan', function(){
                 parentId: '0',
                 content: 'top level thread to delete',
                 nickname: '',
-                date: fourth,
+                date: fifth,
                 imageBytes: 0,
                 width: 0,
                 height: 0,
@@ -169,7 +199,7 @@ mocha.describe('ranchan', function(){
                 parentId: threadId1,
                 content: 'reply level thread to delete',
                 nickname: '',
-                date: fourth,
+                date: sixth,
                 imageBytes: 0,
                 width: 0,
                 height: 0,
@@ -182,7 +212,7 @@ mocha.describe('ranchan', function(){
                 parentId: '0',
                 content: 'top level thread override by mod',
                 nickname: '',
-                date: fourth,
+                date: seventh,
                 imageBytes: 0,
                 width: 0,
                 height: 0,
@@ -195,7 +225,7 @@ mocha.describe('ranchan', function(){
                 parentId: '0',
                 content: 'top level thread ban override by mod',
                 nickname: '',
-                date: fourth,
+                date: eighth,
                 imageBytes: 0,
                 width: 0,
                 height: 0,
@@ -208,7 +238,7 @@ mocha.describe('ranchan', function(){
                 parentId: '0',
                 content: 'top level thread ban override by mod for expired',
                 nickname: '',
-                date: fourth,
+                date: nineth,
                 imageBytes: 0,
                 width: 0,
                 height: 0,
@@ -221,7 +251,33 @@ mocha.describe('ranchan', function(){
                 parentId: '0',
                 content: 'top level thread added before ban for expired test',
                 nickname: '',
-                date: fourth,
+                date: tenth,
+                imageBytes: 0,
+                width: 0,
+                height: 0,
+                flags: 0,
+                chats: 0,
+                images: 0
+            });
+            thread11 = ranchan.newThread({
+                threadId: threadId11,
+                parentId: threadId1,
+                content: 'reply thread bump limit test',
+                nickname: 'bumpper',
+                date: eleventh,
+                imageBytes: 0,
+                width: 0,
+                height: 0,
+                flags: 0,
+                chats: 0,
+                images: 0
+            });
+            thread12 = ranchan.newThread({
+                threadId: threadId12,
+                parentId: '0',
+                content: 'top level thread timer limit test',
+                nickname: 'frequentus',
+                date: twelvth,
                 imageBytes: 0,
                 width: 0,
                 height: 0,
@@ -308,6 +364,32 @@ mocha.describe('ranchan', function() {
     });
 });
 
+var bumpError;        
+mocha.describe('ranchan', function() {
+    mocha.describe('newBumpError()', function() {
+        mocha.it('should create new bump error object', function() {
+            var message = "Thread has reached the bump limit";
+            bumpError = ranchan.newBumpError(message);
+            assert(bumpError);
+            assert.equal('BumpError', bumpError.name);
+            assert.equal(message, bumpError.message);
+        });
+    });
+});
+
+var existsError;        
+mocha.describe('ranchan', function() {
+    mocha.describe('newExistsError()', function() {
+        mocha.it('should create new exists error object', function() {
+            var message = "Parent thread does not exist";
+            existsError = ranchan.newExistsError(message);
+            assert(existsError);
+            assert.equal('ExistsError', existsError.name);
+            assert.equal(message, existsError.message);
+        });
+    });
+});
+
 // thread is same iff equal
 mocha.describe('ranchan', function(){
     mocha.describe('sameVisibleThread', function() {
@@ -363,21 +445,33 @@ var isIPAddressInBanList = function(bans, ipAddress) {
      return exists;
 };
 
+// start DB access
+mocha.describe('ranchan', function(){
+    mocha.describe('clearAllData', function() {
+        mocha.it('should clear all data before testing', function(done) {
+            ranchan.clearAllData(function(err) {
+                assert(!err);
+                done();                
+            });
+        });
+    });
+});
+
 // GET /a/t/0/
 mocha.describe('ranchan', function() {
     mocha.describe('getThreads', function() {
         mocha.it('should return list at first without test threads', function(done) {
-            this.timeout(4000);
-            ranchan.getThreads('0', function(threads) {
+            this.timeout(5000);
+            ranchan.getThreads('0', function(err, threads) {
+                assert(!err);
                 assert(threads);
-                assert(threads.length >= 0);
+                assert(threads.length === 0);
                 assert(!isThreadIdInList(threads, threadId1));
                 assert(!isThreadIdInList(threads, threadId2));
                 assert(!isThreadIdInList(threads, threadId3));
                 assert(!isThreadIdInList(threads, threadId4));
                 done();
-            },
-            throwError);
+            });
         })
     })
 });
@@ -386,11 +480,38 @@ mocha.describe('ranchan', function() {
 mocha.describe('ranchan', function() {
     mocha.describe('getThread', function() {
         mocha.it('should not return non-posted thread', function(done) {
-            ranchan.getThread(thread1.threadId, function(thread) {
+            ranchan.getThread(thread1.threadId, function(err, thread) {
+                assert(!err);
                 assert(!thread);
                 done();
-            },
-            throwError);
+            });
+        })
+    })
+});
+
+// POST /a/t
+mocha.describe('ranchan', function(){
+    mocha.describe('postThread', function() {
+        mocha.it('should not post thread reply to non-existent thread', function(done){
+            ranchan.postThread(thread2, auth1, function(err, thread){
+                assert(err);
+                assert.equal("ExistsError", err.name);
+                assert.equal("Parent thread does not exist", err.message);
+                done();
+            });
+        })
+    })
+});
+
+// GET /a/t/<thread2> - should not exist
+mocha.describe('ranchan', function() {
+    mocha.describe('getThread', function() {
+        mocha.it('should not return non-posted thread reply', function(done) {
+            ranchan.getThread(thread2.threadId, function(err, thread) {
+                assert(!err);
+                assert(!thread);
+                done();
+            });
         })
     })
 });
@@ -399,38 +520,28 @@ mocha.describe('ranchan', function() {
 mocha.describe('ranchan', function(){
     mocha.describe('postThread', function() {
         mocha.it('should post top level thread', function(done){
-            ranchan.postThread(thread1, auth1, function(thread){
+            ranchan.postThread(thread1, auth1, function(err, thread){
+                assert(!err);
                 assert(thread);
                 assert(ranchan.sameVisibleThread(thread1, thread));  
                 done();
-            },
-            throwError);
+            });
         })
     })
 })
 
-mocha.describe('ranchan', function() {
-    mocha.describe('hideThreadIP()', function() {
-        mocha.it('should hide thread ipAddress', function() {
-            var thread = ranchan.hideThreadIP(thread1);
-            assert(thread);
-            assert(!thread.ipAddress);
-            assert(ranchan.sameVisibleThread(thread1, thread));
-        })
-    })
-});
-
 // GET /a/t/<threadId1> - after exists
 mocha.describe('ranchan', function() {
     mocha.describe('getThread', function() {
-        mocha.it('should find top level thread just created with hidden ipAddress', function(done) {
-            ranchan.getThread(threadId1, function(thread) {
+        mocha.it('should find top level thread just created with hidden ipAddress and zero chats', function(done) {
+            ranchan.getThread(threadId1, function(err, thread) {
+                assert(!err);
                 assert(thread);
                 assert(!thread.ipAddress);
                 assert(ranchan.sameVisibleThread(thread1, thread));
+                assert.equal(0, thread.chats);
                 done();
-            },
-            throwError);
+            });
         })
     })
 });
@@ -439,11 +550,11 @@ mocha.describe('ranchan', function() {
 mocha.describe('ranchan', function() {
     mocha.describe('getThreadWithIP()', function() {
         mocha.it('should return thread matching posters IP', function(done) {
-            ranchan.getThreadWithIP(thread1.threadId, auth1.ipAddress, function(thread) {
+            ranchan.getThreadWithIP(thread1.threadId, auth1.ipAddress, function(err, thread) {
+                assert(!err);
                 assert(thread);
                 done();
-            },
-            throwError);
+            });
         })
     })
 });
@@ -452,11 +563,11 @@ mocha.describe('ranchan', function() {
 mocha.describe('ranchan', function() {
     mocha.describe('getThreadWithIP()', function() {
         mocha.it('should not return thread not matching posters IP', function(done) {
-            ranchan.getThreadWithIP(thread1.threadId, bannedAuth1.ipAddress, function(thread) {
+            ranchan.getThreadWithIP(thread1.threadId, bannedAuth1.ipAddress, function(err, thread) {
+                assert(!err);
                 assert(!thread);
                 done();
-            },
-            throwError);
+            });
         })
     })
 });
@@ -465,11 +576,12 @@ mocha.describe('ranchan', function() {
 mocha.describe('ranchan', function(){
     mocha.describe('postThread', function() {
         mocha.it('should post thread reply', function(done){
-            ranchan.postThread(thread2, auth1, function(thread){
+            ranchan.postThread(thread2, auth1, function(err, thread){
+                console.log('post thread callback err=', err, ' thread=', thread);
+                assert(!err);
                 assert(ranchan.sameVisibleThread(thread2, thread));  
                 done();
-            },
-            throwError);
+            });
         })
     })
 });
@@ -478,12 +590,67 @@ mocha.describe('ranchan', function(){
 mocha.describe('ranchan', function() {
     mocha.describe('getThread', function() {
         mocha.it('should find thread reply', function(done) {
-            ranchan.getThread(threadId2, function(thread) {
+            ranchan.getThread(threadId2, function(err, thread) {
+                assert(!err);
                 assert(thread);
                 assert(ranchan.sameVisibleThread(thread2, thread));
                 done();
-            },
-            throwError);
+            });
+        })
+    })
+});
+
+// GET /a/t/<threadId2> - after exists
+mocha.describe('ranchan', function() {
+    mocha.describe('getThread', function() {
+        mocha.it('should find parent thread with updated chat count', function(done) {
+            ranchan.getThread(threadId1, function(err, thread) {
+                assert(!err);
+                assert(thread);
+                assert.equal(1, thread.chats);
+                done();
+            });
+        })
+    })
+});
+
+mocha.describe('ranchan', function(){
+    mocha.describe('getPostBlockingThread()', function() {
+        mocha.it('should find thread blocking posting due to timer limit', function(done){
+            console.log('getPostBlockingThread() ip=', auth1.ipAddress, ' parentId=', thread4.parentId);
+            ranchan.getPostBlockingThread(auth1.ipAddress, thread4.parentId, function(err, blockingThread){
+                assert(!err);
+                assert(blockingThread);
+                assert(ranchan.sameVisibleThread(thread2, blockingThread));
+                done();
+            });
+        });
+    });
+});
+
+// POST /a/t
+mocha.describe('ranchan', function(){
+    mocha.describe('postThread', function() {
+        mocha.it('should not post second thread reply due to timer limit', function(done){
+            ranchan.postThread(thread4, auth1, function(err, thread){
+                assert(err);
+                assert.equal("WaitError", err.name);
+                assert.equal("You must wait 5 seconds between posts", err.message);
+                done();
+            });
+        })
+    })
+});
+
+// GET /a/t/<threadId2> - after exists
+mocha.describe('ranchan', function() {
+    mocha.describe('getThread', function() {
+        mocha.it('should not find thread reply attempted to post before timer limit expired', function(done) {
+            ranchan.getThread(threadId4, function(err, thread) {
+                assert(!err);
+                assert.equal(null, thread);
+                done();
+            });
         })
     })
 });
@@ -492,14 +659,14 @@ mocha.describe('ranchan', function() {
 mocha.describe('ranchan', function() {
     mocha.describe('getThreads', function() {
         mocha.it('should have thread1 now in top level but not reply thread2', function(done) {
-            ranchan.getThreads('0', function(threads) {
+            ranchan.getThreads('0', function(err, threads) {
+                assert(!err);
                 assert(threads);
                 assert(threads.length >= 0);
                 assert(isThreadIdInList(threads, threadId1));
                 assert(!isThreadIdInList(threads, threadId2));
                 done();
-            },
-            throwError);
+            });
         })
     })
 });
@@ -507,15 +674,16 @@ mocha.describe('ranchan', function() {
 // GET /a/t/<threadId1>/
 mocha.describe('ranchan', function() {
     mocha.describe('getThreads', function() {
-        mocha.it('should have thread1 and thread2 as thread parent and reply', function(done) {
-            ranchan.getThreads(threadId1, function(threads) {
+        mocha.it('should have thread1 and thread2 as thread parent and reply with correct chat count', function(done) {
+            ranchan.getThreads(threadId1, function(err, threads) {
+                assert(!err);
                 assert(threads);
                 assert(threads.length >= 0);
                 assert(isThreadIdInList(threads, threadId1, '0'));
                 assert(isThreadIdInList(threads, threadId2, threadId1));
+                assert.equal(1, threads[0].chats);
                 done();
-            },
-            throwError);
+            });
         })
     })
 });
@@ -523,13 +691,27 @@ mocha.describe('ranchan', function() {
 // POST /a/t
 mocha.describe('ranchan', function(){
     mocha.describe('postThread', function() {
-        mocha.it('should post another top level thread', function(done){
-            ranchan.postThread(thread3, auth1, function(thread){
+        mocha.it('should post another top level thread from different IP', function(done){
+            ranchan.postThread(thread3, auth2, function(err, thread){
+                assert(!err);
                 assert(thread);
                 assert(ranchan.sameVisibleThread(thread3, thread));  
                 done();
-            },
-            throwError);
+            });
+        })
+    })
+});
+
+// POST /a/t
+mocha.describe('ranchan', function(){
+    mocha.describe('postThread', function() {
+        mocha.it('should not post another top level thread from same IP just used before timer limit', function(done){
+            ranchan.postThread(thread12, auth2, function(err, thread){
+                assert(err);
+                assert("WaitError", err.name);
+                assert("You must wait 60 seconds between threads");
+                done();
+            });
         })
     })
 });
@@ -538,12 +720,12 @@ mocha.describe('ranchan', function(){
 mocha.describe('ranchan', function() {
     mocha.describe('getThread', function() {
         mocha.it('should find another top level thread just created', function(done) {
-            ranchan.getThread(threadId3, function(thread) {
+            ranchan.getThread(threadId3, function(err, thread) {
+                assert(!err);
                 assert(thread);
                 assert(ranchan.sameVisibleThread(thread3, thread));
                 done();
-            },
-            throwError);
+            });
         })
     })
 });
@@ -552,7 +734,8 @@ mocha.describe('ranchan', function() {
 mocha.describe('ranchan', function() {
     mocha.describe('getThreads', function() {
         mocha.it('should have thread3 now in top level ordered before thread1', function(done) {
-            ranchan.getThreads('0', function(threads) {
+            ranchan.getThreads('0', function(err, threads) {
+                assert(!err);
                 assert(threads);
                 assert(threads.length >= 0);
                 assert(isThreadIdInList(threads, threadId1, '0'));
@@ -578,8 +761,7 @@ mocha.describe('ranchan', function() {
                 assert(pos3 < pos1);
                 ;
                 done();
-            },
-            throwError);
+            });
         })
     })
 });
@@ -588,12 +770,12 @@ mocha.describe('ranchan', function() {
 mocha.describe('ranchan', function(){
     mocha.describe('postThread', function() {
         mocha.it('should post another reply level thread', function(done){
-            ranchan.postThread(thread4, auth1, function(thread){
+            ranchan.postThread(thread4, auth2, function(err, thread){
+                assert(!err);
                 assert(thread);
                 assert(ranchan.sameVisibleThread(thread4, thread));  
                 done();
-            },
-            throwError);
+            });
         })
     })
 });
@@ -602,12 +784,12 @@ mocha.describe('ranchan', function(){
 mocha.describe('ranchan', function() {
     mocha.describe('getThread', function() {
         mocha.it('should find another reply level thread just created', function(done) {
-            ranchan.getThread(threadId4, function(thread) {
+            ranchan.getThread(threadId4, function(err, thread) {
+                assert(!err);
                 assert(thread);
                 assert(ranchan.sameVisibleThread(thread4, thread));
                 done();
-            },
-            throwError);
+            });
         })
     })
 });
@@ -616,7 +798,8 @@ mocha.describe('ranchan', function() {
 mocha.describe('ranchan', function() {
     mocha.describe('getThreads', function() {
         mocha.it('should have thread1,thread2,thread4 in order for thread1 parent with correct chats count', function(done) {
-            ranchan.getThreads(threadId1, function(threads) {
+            ranchan.getThreads(threadId1, function(err, threads) {
+                assert(!err);
                 assert(threads);
                 assert(threads.length >= 0);
                 assert(isThreadIdInList(threads, threadId1, '0'));
@@ -645,8 +828,7 @@ mocha.describe('ranchan', function() {
                 assert(pos4 > pos2);
                 ;
                 done();
-            },
-            throwError);
+            });
         })
     })
 });
@@ -655,7 +837,8 @@ mocha.describe('ranchan', function() {
 mocha.describe('ranchan', function() {
     mocha.describe('getThreads', function() {
         mocha.it('should have thread1 bumped in top level above thread3', function(done) {
-            ranchan.getThreads('0', function(threads) {
+            ranchan.getThreads('0', function(err, threads) {
+                assert(!err);
                 assert(threads);
                 assert(threads.length >= 0);
                 assert(isThreadIdInList(threads, threadId1, '0'));
@@ -676,8 +859,7 @@ mocha.describe('ranchan', function() {
                 });
                 assert(pos1 < pos3);
                 done();
-            },
-            throwError);
+            });
         })
     })
 });
@@ -686,12 +868,12 @@ mocha.describe('ranchan', function() {
 mocha.describe('ranchan', function(){
     mocha.describe('postThread', function() {
         mocha.it('should create a top-level thread to be used for deletion', function(done){
-            ranchan.postThread(thread5, auth1, function(thread){
+            ranchan.postThread(thread5, auth3, function(err, thread){
+                assert(!err);
                 assert(thread);
                 assert(ranchan.sameVisibleThread(thread5, thread));  
                 done();
-            },
-            throwError);
+            });
         })
     })
 });
@@ -700,12 +882,12 @@ mocha.describe('ranchan', function(){
 mocha.describe('ranchan', function(){
     mocha.describe('postThread', function() {
         mocha.it('should create a reply-level thread to be used for deletion', function(done){
-            ranchan.postThread(thread6, auth1, function(thread){
+            ranchan.postThread(thread6, auth4, function(err, thread){
+                assert(!err);
                 assert(thread);
                 assert(ranchan.sameVisibleThread(thread6, thread));  
                 done();
-            },
-            throwError);
+            });
         })
     })
 });
@@ -714,11 +896,7 @@ mocha.describe('ranchan', function(){
 mocha.describe('ranchan', function(){
     mocha.describe('deleteThread', function() {
         mocha.it('should fail to delete a top level thread since not moderator', function(done){
-            ranchan.deleteThread(threadId5, '0', auth1, function(thread){
-                assert(false);
-                done();
-            },
-            function(err){
+            ranchan.deleteThread(threadId5, '0', auth1, function(err, thread){
                 assert(err);
                 assert(ranchan.sameError(authError, err));
                 done();
@@ -731,12 +909,12 @@ mocha.describe('ranchan', function(){
 mocha.describe('ranchan', function(){
     mocha.describe('deleteThread', function() {
         mocha.it('should delete a top level thread as moderator', function(done){
-            ranchan.deleteThread(threadId5, '0', modAuth1, function(thread){
+            ranchan.deleteThread(threadId5, '0', modAuth1, function(err, thread){
+                assert(!err);
                 assert(thread);
                 assert(ranchan.sameVisibleThread(thread5, thread));  
                 done();
-            },
-            throwError);
+            });
         })
     })
 });
@@ -745,15 +923,15 @@ mocha.describe('ranchan', function(){
 mocha.describe('ranchan', function(){
     mocha.describe('deleteThread', function() {
         mocha.it('should delete a reply-level thread and update parent', function(done){
-            ranchan.deleteThread(threadId6, threadId1, modAuth1, function(thread, parent){
+            ranchan.deleteThread(threadId6, threadId1, modAuth1, function(err, thread, parent){
+                assert(!err);
                 assert(thread);
                 assert(ranchan.sameVisibleThread(thread6, thread));
                 assert(parent);
                 assert.equal(threadId1, parent.threadId);
                 assert.equal(2, parent.chats);
                 done();
-            },
-            throwError);
+            });
         })
     })
 });
@@ -762,15 +940,15 @@ mocha.describe('ranchan', function(){
 mocha.describe('ranchan', function() {
     mocha.describe('getThreads', function() {
         mocha.it('should have thread1 parent without deleted thread5 and correct chats count', function(done) {
-            ranchan.getThreads(threadId1, function(threads) {
+            ranchan.getThreads(threadId1, function(err, threads) {
+                assert(!err);
                 assert(threads);
                 assert(threads.length >= 0);
                 assert(isThreadIdInList(threads, threadId1, '0'));
                 assert(!isThreadIdInList(threads, threadId5, threadId1));
                 assert.equal(2, threads[0].chats);
                 done();
-            },
-            throwError);
+            });
         })
     })
 });
@@ -779,14 +957,14 @@ mocha.describe('ranchan', function() {
 mocha.describe('ranchan', function() {
     mocha.describe('getThreads', function() {
         mocha.it('should not return deleted top-level thread', function(done) {
-            ranchan.getThreads('0', function(threads) {
+            ranchan.getThreads('0', function(err, threads) {
+                assert(!err);
                 assert(threads);
                 assert(threads.length >= 0);
                 assert(isThreadIdInList(threads, threadId1, '0'));
                 assert(!isThreadIdInList(threads, threadId5, threadId1));
                 done();
-            },
-            throwError);
+            });
         })
     })
 });
@@ -795,12 +973,12 @@ mocha.describe('ranchan', function() {
 mocha.describe('ranchan', function() {
     mocha.describe('postThread()', function() {
         mocha.it('should be able to post thread before ban', function(done) {
-            ranchan.postThread(thread7, bannedAuth1, function(thread) {
+            ranchan.postThread(thread7, bannedAuth1, function(err, thread) {
+                assert(!err);
                 assert(thread);
                 assert(ranchan.sameVisibleThread(thread7, thread));
                 done();
-            },
-            throwError);
+            });
         });
     });
 });
@@ -809,11 +987,7 @@ mocha.describe('ranchan', function() {
 mocha.describe('ranchan', function(){
     mocha.describe('postBan', function() {
         mocha.it('should not be able to add to the ban list as non-moderator', function(done){
-            ranchan.postBan(ban1, threadId1, auth1, function(ban){
-                assert(false);
-                done();
-            },
-            function(err) {
+            ranchan.postBan(ban1, threadId1, auth1, function(err, ban){
                 assert(err);
                 assert.equal('AuthError', err.name);
                 assert.equal('Only a moderator can do that', err.message);
@@ -823,26 +997,16 @@ mocha.describe('ranchan', function(){
     })
 });
 
-mocha.describe('ranchan', function(){
-    mocha.describe('hideBanIP()', function() {
-        mocha.it('should hide IP from a ban', function(){
-            var ban = ranchan.hideBanIP(ban1);
-            assert(ban);
-            assert(ranchan.sameVisibleBan(ban1, ban));
-        });
-    });
-});
-
 // POST /a/b
 mocha.describe('ranchan', function(){
     mocha.describe('postBan', function() {
         mocha.it('should allow moderator to add IP from a thread to the ban list', function(done){
-            ranchan.postBan(ranchan.hideBanIP(ban1), threadId7, modAuth1, function(ban){
+            ranchan.postBan(ban1, threadId7, modAuth1, function(err, ban){
+                assert(!err);
                 assert(ban);
                 assert(ranchan.sameBan(ban1, ban));
                 done();
-            },
-            throwError);
+            });
         })
     })
 });
@@ -851,12 +1015,26 @@ mocha.describe('ranchan', function(){
 mocha.describe('ranchan', function() {
     mocha.describe('getBan', function() {
         mocha.it('should find ban which was just added', function(done) {
-            ranchan.getBan(bannedIpAddress, function(ban) {
+            ranchan.getBan(bannedIpAddress, function(err, ban) {
+                assert(!err);
                 assert(ban);
                 assert(ranchan.sameBan(ban1, ban));
                 done();
-            },
-            throwError);
+            });
+        })
+    })
+});
+
+// GET /a/b/<bannedIPAddress> - after exists
+mocha.describe('ranchan', function() {
+    mocha.describe('getActiveBan', function() {
+        mocha.it('should find active ban which was just added', function(done) {
+            ranchan.getActiveBan(bannedIpAddress, function(err, ban) {
+                assert(!err);
+                assert(ban);
+                assert(ranchan.sameBan(ban1, ban));
+                done();
+            });
         })
     })
 });
@@ -865,13 +1043,13 @@ mocha.describe('ranchan', function() {
 mocha.describe('ranchan', function() {
     mocha.describe('getBans', function() {
         mocha.it('should have ban1 in ban list', function(done) {
-            ranchan.getBans(function(bans) {
+            ranchan.getBans(function(err, bans) {
+                assert(!err);
                 assert(bans);
                 assert(bans.length >= 0);
                 assert(isIPAddressInBanList(bans, bannedIpAddress));
                 done();
-            },
-            throwError);
+            });
         })
     })
 });
@@ -880,11 +1058,9 @@ mocha.describe('ranchan', function() {
 mocha.describe('ranchan', function() {
     mocha.describe('postThreadBan', function() {
         mocha.it('should not be able to post top level thread due to ban', function(done) {
-            ranchan.postThread(thread7, bannedAuth1, function(thread) {
-                assert(false); // should not reach here
-                done();
-            },
-            function(err) {
+            ranchan.postThread(thread7, bannedAuth1, function(err, thread) {
+                assert(err);
+                console.log('postThread ban err=', err, ' thread=', thread);
                 assert(ranchan.sameError(banError, err));
                 done();
             });
@@ -896,12 +1072,12 @@ mocha.describe('ranchan', function() {
 mocha.describe('ranchan', function() {
     mocha.describe('postThreadOverride', function() {
         mocha.it('should be able to post top level thread as moderator before banned', function(done) {
-            ranchan.postThread(thread8, modAuth1, function(thread) {
+            ranchan.postThread(thread8, modAuth1, function(err, thread) {
+                assert(!err);
                 assert(thread);
                 assert(ranchan.sameVisibleThread(thread8, thread));
                 done();
-            },
-            throwError);
+            });
         })
     })
 });
@@ -910,12 +1086,12 @@ mocha.describe('ranchan', function() {
 mocha.describe('ranchan', function(){
     mocha.describe('postBan', function() {
         mocha.it('should add moderator IP to the ban list', function(done){
-            ranchan.postBan(modBan1, threadId8, modAuth1, function(ban){
+            ranchan.postBan(modBan1, threadId8, modAuth1, function(err, ban){
+                assert(!err);
                 assert(ban);
                 assert(ranchan.sameBan(modBan1, ban));
                 done();
-            },
-            throwError);
+            });
         })
     })
 });
@@ -924,27 +1100,27 @@ mocha.describe('ranchan', function(){
 mocha.describe('ranchan', function(){
     mocha.describe('deleteThread', function() {
         mocha.it('should delete a top level thread as moderator even if moderator IP on ban list', function(done){
-            ranchan.deleteThread(threadId8, '0', modAuth1, function(thread){
+            ranchan.deleteThread(threadId8, '0', modAuth1, function(err, thread){
+                assert(!err);
                 assert(thread);
                 assert(ranchan.sameVisibleThread(thread8, thread));  
                 done();
-            },
-            throwError);
+            });
         })
     })
 });
-
 
 // POST /a/t
 mocha.describe('ranchan', function() {
     mocha.describe('postThreadOverride', function() {
         mocha.it('should be able to post top level thread overriding ban if moderator', function(done) {
-            ranchan.postThread(thread9, modAuth1, function(thread) {
+            ranchan.postThread(thread9, modAuth1, function(err, thread) {
+                console.log('postThread err=', err);
+                assert(!err);
                 assert(thread);
                 assert(ranchan.sameVisibleThread(thread9, thread));
                 done();
-            },
-            throwError);
+            });
         })
     })
 });
@@ -953,12 +1129,12 @@ mocha.describe('ranchan', function() {
 mocha.describe('ranchan', function(){
     mocha.describe('deleteBan', function() {
         mocha.it('should delete a ban', function(done){
-            ranchan.deleteBan(bannedIpAddress, function(ban){
+            ranchan.deleteBan(bannedIpAddress, function(err, ban){
+                assert(!err);
                 assert(ban);
                 assert(ranchan.sameBan(ban1, ban));
                 done();
-            },
-            throwError);
+            });
         })
     })
 });
@@ -967,13 +1143,13 @@ mocha.describe('ranchan', function(){
 mocha.describe('ranchan', function() {
     mocha.describe('getBans', function() {
         mocha.it('should have ban1 no longer in ban list', function(done) {
-            ranchan.getBans(function(bans) {
+            ranchan.getBans(function(err, bans) {
+                assert(!err);
                 assert(bans);
                 assert(bans.length >= 0);
                 assert(!isIPAddressInBanList(bans, bannedIpAddress));
                 done();
-            },
-            throwError);
+            });
         })
     })
 });
@@ -982,25 +1158,26 @@ mocha.describe('ranchan', function() {
 mocha.describe('ranchan', function() {
     mocha.describe('postThread()', function() {
         mocha.it('should be able to post thread before ban for expired test', function(done) {
-            ranchan.postThread(thread10, bannedAuth2, function(thread) {
+            ranchan.postThread(thread10, bannedAuth2, function(err, thread) {
+                assert(!err);
                 assert(thread);
                 assert(ranchan.sameVisibleThread(thread10, thread));
                 done();
-            },
-            throwError);
+            });
         });
     });
 });
+
 // POST /a/b
 mocha.describe('ranchan', function(){
     mocha.describe('postBan', function() {
         mocha.it('should add expired IP to the ban list', function(done){
-            ranchan.postBan(ban2, threadId10, modAuth1, function(ban){
+            ranchan.postBan(ban2, threadId10, modAuth1, function(err, ban){
+                assert(!err);
                 assert(ban);
                 assert(ranchan.sameBan(ban2, ban));
                 done();
-            },
-            throwError);
+            });
         })
     })
 });
@@ -1009,25 +1186,52 @@ mocha.describe('ranchan', function(){
 mocha.describe('ranchan', function() {
     mocha.describe('getBan', function() {
         mocha.it('should find expired ban which was just added before clean', function(done) {
-            ranchan.getBan(bannedIpAddress2, function(ban) {
+            ranchan.getBan(bannedIpAddress2, function(err, ban) {
+                assert(!err);
                 assert(ban);
                 assert(ranchan.sameBan(ban2, ban));
                 done();
-            },
-            throwError);
+            });
         })
     })
 });
 
+// GET /a/b/<bannedIPAddress> - after exists
+mocha.describe('ranchan', function() {
+    mocha.describe('getActiveBan', function() {
+        mocha.it('should not find expired ban which was just added before clean as active', function(done) {
+            ranchan.getActiveBan(bannedIpAddress2, function(err, ban) {
+                assert(!err);
+                assert(!ban);
+                done();
+            });
+        })
+    })
+});
+
+// GET /a/b/
+mocha.describe('ranchan', function() {
+    mocha.describe('getActiveBans', function() {
+        mocha.it('should not have expired bans in the active ban list', function(done) {
+            ranchan.getActiveBans(function(err, bans) {
+                assert(!err);
+                assert(bans);
+                assert(bans.length >= 0);
+                assert(!isIPAddressInBanList(bans, bannedIpAddress2));
+                done();
+            });
+        });
+    });
+});
 
 // GET /a/b/<bannedIPAddress> - after exists
 mocha.describe('ranchan', function() {
     mocha.describe('cleanBans', function() {
         mocha.it('should clean ban list of expired entries', function(done) {
-            ranchan.cleanBans(function() {
+            ranchan.cleanBans(function(err) {
+                assert(!err);
                 done();
-            },
-            throwError);
+            });
         })
     })
 });
@@ -1036,23 +1240,74 @@ mocha.describe('ranchan', function() {
 mocha.describe('ranchan', function() {
     mocha.describe('getBans', function() {
         mocha.it('should have expired ban no longer in ban list', function(done) {
-            ranchan.getBans(function(bans) {
+            ranchan.getBans(function(err, bans) {
+                assert(!err);
                 assert(bans);
                 assert(bans.length >= 0);
                 assert(!isIPAddressInBanList(bans, bannedIpAddress2));
                 done();
-            },
-            throwError);
+            });
         })
     })
 });
 
+// normally never called
+mocha.describe('ranchan', function() {
+    mocha.describe('setBumpLimit(), getBumpLimit()', function() {
+        mocha.it('should set bump limit to 2', function() {
+            var limit = 2;
+            ranchan.setBumpLimit(limit);
+            assert(limit, ranchan.getBumpLimit());
+        })
+    })
+});
+
+// POST /a/t/
+mocha.describe('ranchan', function(){
+    mocha.describe('postThread', function() {
+        mocha.it('should fail to add a reply to a thread already at the bump limit', function(done){
+            ranchan.postThread(thread11, auth3, function(err, thread){
+                assert(err);
+                assert.equal(bumpError.name, err.name);
+                assert.equal(bumpError.message, err.message);
+                assert(ranchan.sameError(bumpError, err));
+                done();
+            });
+        })
+    })
+});
+
+// for testing only
+mocha.describe('ranchan', function() {
+    mocha.describe('setBumpLimit(), getBumpLimit()', function() {
+        mocha.it('should set bump limit back to default 150', function() {
+            var limit = 150;
+            ranchan.setBumpLimit(limit);
+            assert(limit, ranchan.getBumpLimit());
+        })
+    })
+});
+
+// POST /a/t - thread for deletion
+mocha.describe('ranchan', function(){
+    mocha.describe('postThread', function() {
+        mocha.it('should add a reply to a thread below the bump limit', function(done){
+            ranchan.postThread(thread11, auth3, function(err, thread){
+                assert(!err);
+                assert(thread);
+                assert(ranchan.sameVisibleThread(thread11, thread));  
+                done();
+            });
+        })
+    })
+});
+
+// allow reporting
+// should not be able to set post date, lastBump, or chats fields when posting
 // put thread# and content automatically in ban when posting ban
 // delete all threads for a banned IP
 // getThreadsCSV method for brevity
 // check that children thread also deleted when parent is deleted
 // verify auth versus db in separate method
-// try to post new thread beyond timer limitgit
-// try to post reply beyond timer limit 5sec
-// try to post reply beyond bump limit 300
-
+/*
+*/
