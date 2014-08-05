@@ -445,10 +445,21 @@ var isIPAddressInBanList = function(bans, ipAddress) {
      return exists;
 };
 
+var isThreadIdInReportList = function(reports, threadId) {
+    var exists = false;
+     reports.forEach(function(v) {
+         if (v.threadId === threadId) {
+             exists = true;
+         }
+     });
+     return exists;
+};
+
 // start DB access
 mocha.describe('ranchan', function(){
     mocha.describe('clearAllData', function() {
         mocha.it('should clear all data before testing', function(done) {
+            this.timeout(10000);
             ranchan.clearAllData(function(err) {
                 assert(!err);
                 done();                
@@ -519,16 +530,26 @@ mocha.describe('ranchan', function() {
 // POST /a/t
 mocha.describe('ranchan', function(){
     mocha.describe('postThread', function() {
-        mocha.it('should post top level thread', function(done){
-            ranchan.postThread(thread1, auth1, function(err, thread){
+        mocha.it('should post top level thread, ignoring calculated fields', function(done){
+            var threadx = ranchan.newThread(thread1);
+            var ago = new Date();
+            ago.setDate(ago.getDate() - 100);
+            threadx.date = ago;
+            threadx.lastBump = ago;
+            threadx.chats = 99;
+            ranchan.postThread(threadx, auth1, function(err, thread){
                 assert(!err);
                 assert(thread);
-                assert(ranchan.sameVisibleThread(thread1, thread));  
+                assert(ranchan.sameVisibleThread(thread1, thread));
+                assert.notEqual(ago, thread.date.getTime());
+                assert.notEqual(ago, thread.lastBump);
+                assert.notEqual(99, thread.chats);
                 done();
             });
         })
     })
 })
+// should not be able to set post date, lastBump, or chats fields when posting
 
 // GET /a/t/<threadId1> - after exists
 mocha.describe('ranchan', function() {
@@ -577,7 +598,6 @@ mocha.describe('ranchan', function(){
     mocha.describe('postThread', function() {
         mocha.it('should post thread reply', function(done){
             ranchan.postThread(thread2, auth1, function(err, thread){
-                console.log('post thread callback err=', err, ' thread=', thread);
                 assert(!err);
                 assert(ranchan.sameVisibleThread(thread2, thread));  
                 done();
@@ -617,7 +637,6 @@ mocha.describe('ranchan', function() {
 mocha.describe('ranchan', function(){
     mocha.describe('getPostBlockingThread()', function() {
         mocha.it('should find thread blocking posting due to timer limit', function(done){
-            console.log('getPostBlockingThread() ip=', auth1.ipAddress, ' parentId=', thread4.parentId);
             ranchan.getPostBlockingThread(auth1.ipAddress, thread4.parentId, function(err, blockingThread){
                 assert(!err);
                 assert(blockingThread);
@@ -1039,11 +1058,24 @@ mocha.describe('ranchan', function() {
     })
 });
 
+mocha.describe('ranchan', function(){
+    mocha.describe('getBans()', function() {
+        mocha.it('should not make bans visible for non-mods', function(done){
+            ranchan.getBans(auth1, function(err, bans){
+                assert(err);
+                assert.equal("AuthError", err.name);
+                assert.equal("Only a moderator can view bans", err.message);
+                done();
+            });
+        })
+    })
+});
+
 // GET /a/b/
 mocha.describe('ranchan', function() {
     mocha.describe('getBans', function() {
         mocha.it('should have ban1 in ban list', function(done) {
-            ranchan.getBans(function(err, bans) {
+            ranchan.getBans(modAuth1, function(err, bans) {
                 assert(!err);
                 assert(bans);
                 assert(bans.length >= 0);
@@ -1060,7 +1092,6 @@ mocha.describe('ranchan', function() {
         mocha.it('should not be able to post top level thread due to ban', function(done) {
             ranchan.postThread(thread7, bannedAuth1, function(err, thread) {
                 assert(err);
-                console.log('postThread ban err=', err, ' thread=', thread);
                 assert(ranchan.sameError(banError, err));
                 done();
             });
@@ -1115,7 +1146,6 @@ mocha.describe('ranchan', function() {
     mocha.describe('postThreadOverride', function() {
         mocha.it('should be able to post top level thread overriding ban if moderator', function(done) {
             ranchan.postThread(thread9, modAuth1, function(err, thread) {
-                console.log('postThread err=', err);
                 assert(!err);
                 assert(thread);
                 assert(ranchan.sameVisibleThread(thread9, thread));
@@ -1143,7 +1173,7 @@ mocha.describe('ranchan', function(){
 mocha.describe('ranchan', function() {
     mocha.describe('getBans', function() {
         mocha.it('should have ban1 no longer in ban list', function(done) {
-            ranchan.getBans(function(err, bans) {
+            ranchan.getBans(modAuth1, function(err, bans) {
                 assert(!err);
                 assert(bans);
                 assert(bans.length >= 0);
@@ -1213,7 +1243,7 @@ mocha.describe('ranchan', function() {
 mocha.describe('ranchan', function() {
     mocha.describe('getActiveBans', function() {
         mocha.it('should not have expired bans in the active ban list', function(done) {
-            ranchan.getActiveBans(function(err, bans) {
+            ranchan.getActiveBans(modAuth1, function(err, bans) {
                 assert(!err);
                 assert(bans);
                 assert(bans.length >= 0);
@@ -1240,7 +1270,7 @@ mocha.describe('ranchan', function() {
 mocha.describe('ranchan', function() {
     mocha.describe('getBans', function() {
         mocha.it('should have expired ban no longer in ban list', function(done) {
-            ranchan.getBans(function(err, bans) {
+            ranchan.getBans(modAuth1, function(err, bans) {
                 assert(!err);
                 assert(bans);
                 assert(bans.length >= 0);
@@ -1302,10 +1332,221 @@ mocha.describe('ranchan', function(){
     })
 });
 
-// allow reporting
-// should not be able to set post date, lastBump, or chats fields when posting
+// get report for non-mod auth3 not found
+mocha.describe('ranchan', function(){
+    mocha.describe('getBlockingReport()', function() {
+        mocha.it('should not find a blocking report for an ipAddress before it is created', function(done){
+            ranchan.getBlockingReport(auth3.ipAddress, function(err, report){
+                assert(!err);
+                assert(!report);
+                done();
+            });
+        })
+    })
+});
+
+var report1;
+var report2;
+var report3;
+mocha.describe('ranchan', function(){
+    mocha.describe('newReport()', function() {
+        mocha.it('should create a new report in memory', function(done){
+            report1 = ranchan.newReport({
+                ipAddress: auth3.ipAddress,
+                threadId: threadId11,
+                reason: "spam"
+            });
+            assert(report1);
+            assert.equal(auth3.ipAddress, report1.ipAddress);
+            assert.equal(threadId11, report1.threadId);
+            assert.equal("spam", report1.reason);
+            report2 = ranchan.newReport({
+                ipAddress: auth3.ipAddress,
+                threadId: threadId12,
+                reason: "spam"
+            });
+            report3 = ranchan.newReport({
+                ipAddress: auth1.ipAddress,
+                threadId: "non-existent-thread",
+                reason: "spam"
+            });
+            done();
+        })
+    })
+});
+
+// non-mod auth3 can create report1 which auto-deletes thread
+// POST /a/r/
+mocha.describe('ranchan', function(){
+    mocha.describe('postReport()', function() {
+        mocha.it('should post a report for the associated ipAddress and thread', function(done){
+            this.timeout(5000);
+            ranchan.postReport(report1, auth3, function(err, report){
+                assert(!err);
+                assert(report);
+                assert.equal(auth3.ipAddress, report.ipAddress);
+                assert.equal(report1.threadId, report.threadId);
+                assert.equal(thread11.content, report.content);
+                assert.equal(thread11.ipAddress, report.threadIpAddress);
+                assert.equal(report1.reason, report.reason);
+                assert.equal(null, report.action);
+                assert.equal(false, report.resolved);
+                done();
+            });
+        })
+    })
+});
+
+// get active report returns report1 for auth3
+mocha.describe('ranchan', function(){
+    mocha.describe('getBlockingReport()', function() {
+        mocha.it('should find a blocking report for an ipAddress after created', function(done){
+            ranchan.getBlockingReport(auth3.ipAddress, function(err, report){
+                assert(!err);
+                assert(report);
+                assert.equal(auth3.ipAddress, report.ipAddress);
+                assert.equal(report1.threadId, report.threadId);
+                assert.equal(thread11.content, report.content);
+                assert.equal(report1.reason, report.reason);
+                assert.equal(false, report.resolved);
+                done();
+            });
+        })
+    })
+});
+
+// get report for non-mod auth1 not found
+mocha.describe('ranchan', function(){
+    mocha.describe('getBlockingReport()', function() {
+        mocha.it('should not find a blocking report for auth never reported', function(done){
+            ranchan.getBlockingReport(auth1.ipAddress, function(err, report){
+                assert(!err);
+                assert(!report);
+                done();
+            });
+        })
+    })
+});
+
+// non-mod auth3 cannot create report2 if report1 within 5 minutes ago
+// POST /a/r/
+mocha.describe('ranchan', function(){
+    mocha.describe('postReport()', function() {
+        mocha.it('should not create a new report before report timer expires', function(done){
+            ranchan.postReport(report2, auth3, function(err, report){
+                assert(err);
+                assert.equal("WaitError", err.name);
+                assert.equal("You must wait 60 seconds between reporting threads", err.message);
+                done();
+            });
+        })
+    })
+});
+
+// non-mod auth3 cannot create report3 for non-existent thread
+// POST /a/r/
+mocha.describe('ranchan', function(){
+    mocha.describe('postReport()', function() {
+        mocha.it('should not post a report for a non-existent thread', function(done){
+            ranchan.postReport(report3, auth1, function(err, report){
+                assert(err);
+                assert.equal("ExistsError", err.name);
+                assert.equal("Cannot report, thread does not exist", err.message);
+                done();
+            });
+        })
+    })
+});
+
+// POST /a/r/
+mocha.describe('ranchan', function(){
+    mocha.describe('postReport()', function() {
+        mocha.it('should be a null-op to post a report for a thread already reported', function(done){
+            ranchan.postReport(report1, auth2, function(err, report){
+                assert(!err);
+                assert(report);
+                assert.equal(report1.threadId, report.threadId);
+                done();
+            });
+        })
+    })
+});
+
+mocha.describe('ranchan', function(){
+    mocha.describe('getUnresolvedReports()', function() {
+        mocha.it('should not report unresolved reports for non-mods', function(done){
+            ranchan.getUnresolvedReports(auth1, function(err, reports){
+                assert(err);
+                assert.equal("AuthError", err.name);
+                assert.equal("Only a moderator can view reports", err.message);
+                done();
+            });
+        })
+    })
+});
+
+mocha.describe('ranchan', function(){
+    mocha.describe('getUnresolvedReports()', function() {
+        mocha.it('should return the unresolved report just created', function(done){
+            ranchan.getUnresolvedReports(modAuth1, function(err, reports){
+                assert(!err);
+                assert(reports);
+                assert(reports.length > 0);
+                assert(isThreadIdInReportList(reports, report1.threadId));
+                reports.forEach(function(report) {
+                    assert(!report.resolved); 
+                });
+                done();
+            });
+        })
+    })
+});
+
+mocha.describe('ranchan', function(){
+    mocha.describe('postResolveReport()', function() {
+        mocha.it('should not resolve report for non-moderator', function(done){
+            ranchan.postResolveReport(report1.threadId, "banned", auth1, function(err, report){
+                assert(err);
+                assert.equal("AuthError", err.name);
+                assert.equal("Only a moderator can resolve a report", err.message);
+                done();
+            });
+        })
+    })
+});
+
+mocha.describe('ranchan', function(){
+    mocha.describe('postResolveReport()', function() {
+        mocha.it('should resolve report for moderator', function(done){
+            ranchan.postResolveReport(report1.threadId, "banned", modAuth1, function(err, report){
+                assert(!err);
+                assert(report);
+                assert(report.resolved);
+                assert.equal("banned", report.action);
+                done();
+            });
+        })
+    })
+});
+
+mocha.describe('ranchan', function(){
+    mocha.describe('getUnresolvedReports()', function() {
+        mocha.it('should not have resolved report in unresolved list', function(done){
+            ranchan.getUnresolvedReports(modAuth1, function(err, reports){
+                assert(!err);
+                assert(reports);
+                assert(reports.length == 0);
+                assert(!isThreadIdInReportList(reports, report1.threadId));
+                done();
+            });
+        })
+    })
+});
+
 // put thread# and content automatically in ban when posting ban
 // delete all threads for a banned IP
+// only mod can resolve with ban and delete (quickResolve)
+
 // getThreadsCSV method for brevity
 // check that children thread also deleted when parent is deleted
 // verify auth versus db in separate method
