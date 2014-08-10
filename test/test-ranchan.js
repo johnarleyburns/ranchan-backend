@@ -175,7 +175,7 @@ mocha.describe('ranchan', function(){
                 content: 'reply level thread parent delete test',
                 nsfw: false
             });
-            
+
             assert(thread1.threadId.match(v4UuidPattern));
             thread2.threadId = ranchan.newThreadId();
             assert(thread2.threadId.match(v4UuidPattern));
