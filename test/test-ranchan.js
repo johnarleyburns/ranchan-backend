@@ -20,6 +20,8 @@ var auth2;
 var auth3;
 var auth4;
 var auth5;
+var auth6;
+var auth7;
 var modAuth1;
 var bannedAuth1;
 var bannedAuth2;
@@ -32,6 +34,8 @@ mocha.describe('ranchan', function(){
             auth3 = ranchan.newAuth(randIp(), null);
             auth4 = ranchan.newAuth(randIp(), null);
             auth5 = ranchan.newAuth(randIp(), null);
+            auth6 = ranchan.newAuth(randIp(), null);
+            auth7 = ranchan.newAuth(randIp(), null);
             modAuth1 = ranchan.newAuth(randIp(), 'johnarleyburns@gmail.com');
             bannedAuth1 = ranchan.newAuth(randIp(), null);
             bannedAuth2 = ranchan.newAuth(randIp(), null);
@@ -61,6 +65,8 @@ var thread15;
 var thread16;
 var thread17;
 var thread18;
+var thread19;
+var thread20;
 
 mocha.describe('ranchan', function(){
     mocha.describe('newThreadId', function() {
@@ -173,6 +179,18 @@ mocha.describe('ranchan', function(){
                 threadId: ranchan.newThreadId(),
                 parentId: thread17.threadId,
                 content: 'reply level thread parent delete test',
+                nsfw: false
+            });
+            thread19 = ranchan.newThread({
+                threadId: ranchan.newThreadId(),
+                parentId: '0',
+                content: 'top level thread date sort test under',
+                nsfw: false
+            });
+            thread20 = ranchan.newThread({
+                threadId: ranchan.newThreadId(),
+                parentId: '0',
+                content: 'top level thread date sort test top',
                 nsfw: false
             });
 
@@ -1618,3 +1636,51 @@ mocha.describe('ranchan', function() {
     })
 });
 
+// POST /a/t
+mocha.describe('ranchan', function(){
+    mocha.describe('postThread', function() {
+        mocha.it('should post top level threads for date sort test', function(done) {
+            ranchan.postThread(thread19, auth6, function(err, thread) {
+                assert(!err);
+                assert(ranchan.sameVisibleThread(thread19, thread));  
+                ranchan.postThread(thread20, auth7, function(err, threadx) {
+                    assert(!err);
+                    assert(ranchan.sameVisibleThread(thread20, threadx));
+                    done();
+                })
+            });
+        })
+    })
+});
+
+// FOO
+// GET /a/t/
+mocha.describe('ranchan', function() {
+    mocha.describe('getThreads', function() {
+        mocha.it('should have thread20, thread19 as top two threads ordered by date desc', function(done) {
+            ranchan.getThreads('0', function(err, threads) {
+                assert(!err);
+                assert(threads);
+                assert(threads.length >= 1);
+                assert(isThreadIdInList(threads, thread19.threadId, '0'));
+                assert(isThreadIdInList(threads, thread20.threadId, '0'));
+                var pos19 = -1;
+                var pos20 = -1;
+                threads.forEach(function(v, i) {
+                    switch (v.threadId) {
+                        case thread19.threadId:
+                            pos19 = i;
+                            break;
+                        case thread20.threadId:
+                            pos20 = i;
+                            break;
+                        default:
+                            ;   
+                    }
+                });
+                assert(pos20 < pos19);
+                done();
+            });
+        })
+    })
+});
